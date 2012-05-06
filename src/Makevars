@@ -1,0 +1,7 @@
+# PKG_CPPFLAGS = -I$(HOME)/RV-Project/Code/C_Examples/MyLib/ -I$(HOME)/Code/include/ -DUSE_R
+# PKG_CPPFLAGS = -I$(PWD) -D"USE_R"
+# PKG_LIBS = -L$(HOME)/Code/lib -lblas -llapack -lgsl
+# PKG_LIBS = -lblas -llapack
+PKG_CPPFLAGS = -DUSE_R
+# PKG_CPPFLAGS = -Wall
+PKG_LIBS = $(BLAS_LIBS) $(FLIBS) $(LAPACK_LIBS)

@@ -1,0 +1,14 @@
+citHeader("To cite package 'BayesLogit' in publications use:")
+
+citEntry(entry = "Unpublished",
+	 title = "BayesLogit",
+	 author = personList(as.person("Nicolas Polson"),
+	 	             as.person("James G. Scott"),
+			     as.person("Jesse Windle"  )),
+         year = 2012,
+	 url = "http://arxiv.org/abs/1205.0310",
+	 note = "Explanation of the Polya-Gamma latent variable method.",
+	 textVersion =
+	 paste("Nicolas Polson, James G. Scott, Jesse Windle (2012).",
+	       "BayesLogit. URL <http://arxiv.org/abs/1205.0310>.")
+)
