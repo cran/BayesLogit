@@ -1,0 +1,16 @@
+# PKG_CPPFLAGS = -I$(HOME)/RV-Project/Code/C_Examples/MyLib/ -I$(HOME)/Code/include/ -DUSE_R
+# PKG_CPPFLAGS = -I$(PWD) -D"USE_R"
+# PKG_LIBS = -L$(HOME)/Code/lib -lblas -llapack -lgsl
+# PKG_LIBS = -lblas -llapack
+
+## W/OUT Dynamic Stuff
+## OBJECTS = Matrix.o MatrixFrame.o RRNG.o RNG.o LogitWrapper.o
+## PKG_LIBS = $(BLAS_LIBS) $(FLIBS) $(LAPACK_LIBS) 
+## PKG_CPPFLAGS = -DUSE_R -Wall -DNDEBUG -DDISABLE_SINGLE
+
+## With Dynamic Stuff 
+## Link order matters.  I need -lblas for _cblas_caxpy.
+## Replace $(HOME)/Code/include with paths to GSL lib and Eigen.
+## Replace $(HOME)/Code/lib with paths to GSL libraries.
+PKG_LIBS = $(BLAS_LIBS) $(FLIBS) $(LAPACK_LIBS) -L$(HOME)/Code/lib -lgsl -lblas
+PKG_CPPFLAGS = -DUSE_R -Wall -DNDEBUG -DDISABLE_SINGLE -I$(HOME)/Code/include 

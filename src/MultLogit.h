@@ -245,8 +245,8 @@ inline void MultLogit::draw_beta(MF beta,
 {
     Matrix tXOmega(tX);
     prodonrow(tXOmega, w);
-    Matrix tXOmX(tXOmega, tX, 'N', 'T');
-    Matrix tXOmC(tXOmega, C_j);
+    Matrix tXOmX; mult(tXOmX, tXOmega, tX, 'N', 'T');
+    Matrix tXOmC; mult(tXOmC, tXOmega, C_j);
 
     // Joint draw.
     Matrix P1 = tXOmX + P0;
@@ -285,7 +285,7 @@ void MultLogit::gibbs(Matrix& w, Matrix& beta, Matrix& m0, Matrices &P0,
   // Burn-in - Take an extra for first sample of MCMC.
   for(int m = 0; m < burn+1; ++m){
 
-    XB_no_j.copy(XB, seq(0,N-1), seq(1,J-1));
+    XB_no_j.copy(XB, seq((uint)0,N-1), seq((uint)1,J-1));
 
     // Gibbs for beta_j, w_j.
     for (uint j = 0; j < J-1; j++) {
@@ -330,7 +330,7 @@ void MultLogit::gibbs(Matrix& w, Matrix& beta, Matrix& m0, Matrices &P0,
   // Sample - Already took one sample from burn-in.
   for(int m = 1; m < samp; ++m){
 
-    XB_no_j.copy(XB, seq(0,N-1), seq(1,J-1));
+    XB_no_j.copy(XB, seq((uint)0,N-1), seq((uint)1,J-1));
 
     // Gibbs for beta_j, w_j.
     for (uint j = 0; j < J-1; j++) {

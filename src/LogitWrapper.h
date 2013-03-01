@@ -32,18 +32,16 @@ extern "C" {
 
   void gibbs(double *wp, double *betap,                            // Posterior
 	     double *yp, double *tXp, double *np,                  // Data
-	     double *y_priorp, double *x_priorp, double *n_priorp, // Prior
+	     double *m0p, double *P0p,                             // Prior
 	     int *N, int *P,                                       // Dim
 	     int *samp, int *burn);                                // MCMC
 
   void EM(double *betap,
-	  double *yp, double *Xp, double *np,
-	  double *y_priorp, double *x_priorp, double *n_priorp,
+	  double *yp, double *tXp, double *np,
 	  int *Np, int *Pp,
 	  double *tolp, int *max_iterp);
 
   void combine(double *yp, double *tXp, double *np,
-	       double *y_priorp, double *x_priorp, double *n_priorp,
 	       int *N, int *P);
 
   // Multinomial Logistic

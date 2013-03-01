@@ -1,8 +1,27 @@
+// Copyright 2012 Jesse Windle - jwindle@ices.utexas.edu
+
+// This program is free software: you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation, either version 3 of
+// the License, or (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see
+// <http://www.gnu.org/licenses/>.
+
+//////////////////////////////////////////////////////////////////////
 
 #ifndef __RNG__
 #define __RNG__
 
 #include <stdio.h>
+#include <stdexcept>
+#include <cmath>
 
 #ifdef USE_R
 #include "RRNG.h"
@@ -23,6 +42,9 @@ class RNG : public BasicRNG {
   double alphastar(double left);
   double lowerbound(double left);
 
+  // Truncated Right Gamma Helper Functions.
+  double omega_k(int k, double a, double b);
+
  public:
 
   // Random variates.  I need to do this so I can overload the function names.
@@ -35,8 +57,14 @@ class RNG : public BasicRNG {
   using BasicRNG::gamma_rate  ;
   using BasicRNG::igamma;
   using BasicRNG::flat  ;
+  using BasicRNG::beta  ;
 
   using BasicRNG::p_norm;
+  using BasicRNG::p_gamma_rate;
+  
+  using BasicRNG::Gamma;
+
+  double Beta(double a, double b, bool log=false);
 
   // Truncated Normal
   double tnorm(double left);               // One sided standard.
@@ -46,6 +74,11 @@ class RNG : public BasicRNG {
 
   // Right tail of normal
   double tnorm_tail(double t);
+
+  // Right truncated gamma.
+  double right_tgamma_reject(double shape, double rate);
+  double right_tgamma_beta(double shape, double rate);
+  double rtgamma_rate(double shape, double rate, double right);
 
   // Random variates with Mat.  Fills the Mat with samples.
   template<typename Mat> void unif  (Mat& M);
@@ -75,10 +108,14 @@ class RNG : public BasicRNG {
 			   // BASIC RANDOM VARIATE //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef uint
+typedef unsigned int uint;
+#endif
+
 template<typename Mat>
 void RNG::unif(Mat& M)
 {
-  for(int i = 0; i < M.size(); ++i)
+  for(uint i = 0; i < M.size(); ++i)
     M(i) = BasicRNG::flat();
 } // unif
 
@@ -86,13 +123,13 @@ void RNG::unif(Mat& M)
   template<typename Mat>			\
   void RNG::NAME(Mat& M, double P1)		\
   {						\
-    for(int i = 0; i < M.size(); i++)		\
+    for(uint i = 0; i < (uint)M.size(); i++)	\
       M(i) = NAME (P1);				\
   }						\
   template<typename Mat>			\
   void RNG::NAME(Mat& M, const Mat& P1)		\
   {						\
-    for(int i = 0; i < M.size(); i++)		\
+    for(uint i = 0; i < (uint)M.size(); i++)	\
       M(i) = NAME (P1(i % P1.size()));		\
   }						\
 
@@ -110,15 +147,15 @@ ONEP(norm      ,   sd)
   template<typename Mat>					\
   void RNG::NAME(Mat& M, double P1, double P2)			\
   {								\
-    for(int i = 0; i < M.size(); i++)				\
+    for(uint i = 0; i < (uint)M.size(); i++)			\
       M(i) = NAME (P1, P2);					\
   }								\
   template<typename Mat>					\
   void RNG::NAME(Mat& M, const Mat& P1, const Mat& P2)		\
   {								\
-    int p1len = P1.size();					\
-    int p2len = P2.size();					\
-    for(int i = 0; i < M.size(); i++)				\
+    uint p1len = P1.size();					\
+    uint p2len = P2.size();					\
+    for(uint i = 0; i < (uint)M.size(); i++)			\
       M(i) = NAME (P1(i%p1len), P2(i%p2len) );			\
   }								\
 
@@ -129,134 +166,5 @@ TWOP(igamma     , shape,  scale)
 TWOP(flat       ,     a,  b    )
 
 #undef TWOP
-
-////////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////
-	       // TRUNCATED NORMAL HELPER FUNCTIONS //
-//////////////////////////////////////////////////////////////////////
-
-double RNG::alphastar(double left)
-{
-  return 0.5 * (left + sqrt(left + 4));
-} // alphastar
-
-double RNG::lowerbound(double left)
-{
-  double astar  = alphastar(left);
-  double lbound = left + exp(0.5 * left * (left - astar) + 0.5);
-  return lbound;
-} // lowerbound
-
-//////////////////////////////////////////////////////////////////////
-		     // DRAW TRUNCATED NORMAL //
-//////////////////////////////////////////////////////////////////////
-
-double RNG::tnorm(double left)
-{
-  double rho, ppsl;
-
-  if (left < 0) { // Accept/Reject Normal
-    while (true) {
-      ppsl = norm(0.0, 1.0);
-      if (ppsl > left) return ppsl;
-    }
-  }
-  else { // Accept/Reject Exponential
-    double astar = alphastar(left);
-    while (true) {
-      ppsl = expon_rate(astar) + left;
-      rho  = exp( -0.5 * (ppsl - astar) * (ppsl - astar) );
-      if (unif() < rho) return ppsl;
-    }
-  }
-} // tnorm
-//--------------------------------------------------------------------
-
-double RNG::tnorm(double left, double right)
-{
-  // The most difficult part of this algorithm is figuring out all the
-  // various cases.  An outline is summarized in the Appendix.
-
-  double rho, ppsl;
-
-  if (left >= 0) {
-    double lbound = lowerbound(left);
-    if (right > lbound) { // Truncated Exponential.
-      double astar = alphastar(left);
-      while (true) {
-	do
-	  ppsl = expon_rate(astar) + left;
-	while(ppsl > right);
-	// REVIEW REVIEW - TAKE ANOTHER LOOK AT THIS.
-	rho  = exp(-0.5*(ppsl - astar)*(ppsl-astar));
-	if (unif() < rho) return ppsl;
-	// if (ppsl < right) return ppsl;
-      }
-    }
-    else {
-      while (true) {
-	ppsl = flat(left, right);
-	rho  = exp(0.5 * (left*left - ppsl*ppsl));
-	if (unif() < rho) return ppsl;
-      }
-    }
-  }
-  else if (right >= 0) {
-    if ( (right - left) < SQRT2PI ){
-      while (true) {
-	ppsl = flat(left, right);
-	rho  = exp(-0.5 * ppsl * ppsl);
-	if (unif() < rho) return ppsl;
-      }
-    }
-    else{
-      while (true) {
-	ppsl = norm(0, 1);
-	if (left < ppsl && ppsl < right) return ppsl;
-      }
-    }
-  }
-  else {
-    return -1. * tnorm(-1.0 * right, -1.0 * left);
-  }
-} // tnorm
-//--------------------------------------------------------------------
-
-double RNG::tnorm(double left, double mu, double sd)
-{
-  double newleft = (left - mu) / sd;
-  return mu + tnorm(newleft) * sd;
-} // tnorm
-//--------------------------------------------------------------------
-
-double RNG::tnorm(double left, double right, double mu, double sd)
-{
-  double newleft  = (left - mu) / sd;
-  double newright = (right - mu) / sd;
-  double tdraw = tnorm(newleft, newright);
-  double draw = mu + tdraw * sd;
-  if (draw < left || draw > right){
-    Rprintf("Error in tnorm: draw not in bounds.\n");
-    Rprintf("left, right, mu, sd: %g, %g, %g, %g\n", left, right, mu, sd);
-    Rprintf("nleft, nright, tdraw, draw: %g, %g, %g, %g\n", newleft, newright, tdraw, draw);
-  }
-  return draw;
-} // tnorm
-//--------------------------------------------------------------------
-
-// Right tail of normal by Devroye
-//------------------------------------------------------------------------------
-double RNG::tnorm_tail(double t)
-{
-  double E1 = expon_rate(1.0);
-  double E2 = expon_rate(1.0);
-  while ( E1*E1 > 2 * E2 / t) {
-    E1 = expon_rate(1.0);
-    E2 = expon_rate(1.0);
-  }
-  return (1 + t * E1) / sqrt(t);
-}
-
 
 #endif

@@ -22,7 +22,6 @@
 ## Posterior mode via expectation maximization.
 ##------------------------------------------------------------------------------
 logit.EM.R <- function(y, X, n=rep(1,length(y)),
-                       y.prior=0.5, x.prior=colMeans(as.matrix(X)), n.prior=1.0,
                        tol=1e-9, max.iter=100)
 {
     X = as.matrix(X)
@@ -34,11 +33,10 @@ logit.EM.R <- function(y, X, n=rep(1,length(y)),
 
     ## Combine data.
     ## new.data = logit.combine.R(y, X, n, y.prior, x.prior, n.prior);
-    new.data = logit.combine(y, X, n, y.prior, x.prior, n.prior);
+    new.data = logit.combine(y, X, n);
     y = new.data$y;
     X = new.data$X;
     n = new.data$n;
-    n.prior = 0.0;
 
     ## X = as.matrix(X)
 
@@ -127,6 +125,8 @@ logit.EM.R <- function(y, X, n=rep(1,length(y)),
     ## print(beta);
 
     output = list("beta"=beta, "iter"=iter, "dist"=dst, "y"=y, "X"=X, "n"=n)
+
+    output
 }
 
 ################################################################################

@@ -1,7 +1,6 @@
 ##
 ##------------------------------------------------------------------------------
-logit.combine.R <- function(y, X, n=rep(1,length(y)),
-                            y.prior=0.5, x.prior=colMeans(as.matrix(X)), n.prior=1.0)
+logit.combine.R <- function(y, X, n=rep(1,length(y)))
 {
     tX = t(X);
 
@@ -16,14 +15,6 @@ logit.combine.R <- function(y, X, n=rep(1,length(y)),
         y.l[[i]] = y[i];
         tX.l[[i]] = tX[,i];
         n.l[[i]] = n[i];
-    }
-
-    ## Prior could be zero.
-    if (n.prior != 0) {
-        N = N + 1;
-        y.l[[N]] = y.prior;
-        tX.l[[N]] = x.prior;
-        n.l[[N]] = n.prior;
     }
 
     old.N = N;

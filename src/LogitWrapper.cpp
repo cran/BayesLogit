@@ -44,7 +44,14 @@ void rpg_gamma(double *x, double *n, double *z, int *num, int *trunc)
   #endif
 
   for(int i=0; i < *num; ++i){
-    x[i] = pg.draw_sum_of_gammas(n[i], z[i], r);
+    #ifdef USE_R
+      if (i % 1000 == 0) R_CheckUserInterrupt();
+    #endif
+      if (n[i]!=0.0) 
+	x[i] = pg.draw_sum_of_gammas(n[i], z[i], r);
+      else 
+	x[i] = 0.0;
+
   }
 
   #ifdef USE_R
@@ -64,7 +71,10 @@ void rpg_devroye(double *x, int *n, double *z, int *num)
   #endif
 
   for(int i=0; i < *num; ++i){
-    x[i] = pg.draw(n[i], z[i], r);
+    if (n[i]!=0)
+      x[i] = pg.draw(n[i], z[i], r);
+    else
+      x[i] = 0.0;
   }
 
   #ifdef USE_R
@@ -80,7 +90,7 @@ void rpg_devroye(double *x, int *n, double *z, int *num)
 //------------------------------------------------------------------------------
 void gibbs(double *wp, double *betap,                            // Posterior
 	   double *yp, double *tXp, double *np,                  // Data
-	   double *y_priorp, double *x_priorp, double *n_priorp, // Prior
+	   double *m0p, double *P0p,                             // Prior
 	   int *N, int *P,                                       // Dim
 	   int *samp, int *burn)                                 // MCMC
 {
@@ -89,9 +99,8 @@ void gibbs(double *wp, double *betap,                            // Posterior
   Matrix y (yp,  *N,  1);
   Matrix tX(tXp, *P, *N);
   Matrix n (np,  *N,  1);
-
-  // Set up prior.
-  Matrix x_prior(x_priorp, *P, 1);
+  Matrix m0(m0p, *P,  1);
+  Matrix P0(P0p, *P, *P);
 
   // Declare posteriors.
   Matrix w, beta;
@@ -105,7 +114,9 @@ void gibbs(double *wp, double *betap,                            // Posterior
 
   // Logit Gibbs
   try{
-    Logit logit(y, tX, n, *y_priorp, x_prior, *n_priorp);
+    Logit logit(y, tX, n);
+    logit.set_prior(m0, P0);
+    // logit.compress();
 
     // Set the correct dimensions after combining data.
     w.resize(logit.get_N(), 1, *samp);
@@ -141,7 +152,6 @@ void gibbs(double *wp, double *betap,                            // Posterior
 //------------------------------------------------------------------------------
 void EM(double *betap,
 	double *yp, double *tXp, double *np,
-	double *y_priorp, double *x_priorp, double *n_priorp,
 	int *Np, int *Pp,
 	double *tolp, int *max_iterp)
 {
@@ -153,15 +163,13 @@ void EM(double *betap,
   Matrix tX(tXp, P, N);
   Matrix n (np,  N, 1);
 
-  // Set up prior.
-  Matrix x_prior(x_priorp, P, 1);
-
   // Declare posteriors.
   Matrix beta(P);
 
   // Logit EM
   try{
-    Logit logit(y, tX, n, *y_priorp, x_prior, *n_priorp);
+    Logit logit(y, tX, n);
+    // logit.compress();
     *max_iterp = logit.EM(beta, *tolp, *max_iterp);
 
     // Copy.
@@ -184,7 +192,6 @@ void EM(double *betap,
 // combine_data
 //------------------------------------------------------------------------------
 void combine(double *yp, double *tXp, double *np,                  // Data
-	     double *y_priorp, double *x_priorp, double *n_priorp, // Prior
 	     int *N, int *P)
 {
 
@@ -193,12 +200,10 @@ void combine(double *yp, double *tXp, double *np,                  // Data
   Matrix tX(tXp, *P, *N);
   Matrix n (np,  *N,  1);
 
-  // Set up prior.
-  Matrix x_prior(x_priorp, *P, 1);
-
   // Logit Gibbs
   try{
-    Logit logit(y, tX, n, *y_priorp, x_prior, *n_priorp);
+    Logit logit(y, tX, n);
+    logit.compress();
     logit.get_data(y, tX, n);
 
     // Copy.

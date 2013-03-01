@@ -16,20 +16,16 @@
 ## BayesLogit.  If not, see <http://www.gnu.org/licenses/>.
 
 ################################################################################
-
-## dyn.load("Logit.so");
-
-################################################################################
                                ## POLYAGAMMA ##
 ################################################################################
 
-## Draw PG(a, b)
+## Draw PG(n, z)
 ##------------------------------------------------------------------------------
 rpg.gamma <- function(num=1, n=1, z=0.0, trunc=200)
 {
     ## Check Parameters.
-    if (sum(n<=0)!=0) {
-        print("a must be greater than zero.");
+    if (sum(n<0)!=0) {
+        print("b must be greater than zero.");
         return(NA);
     }
     if (trunc < 1) {
@@ -52,9 +48,9 @@ rpg.gamma <- function(num=1, n=1, z=0.0, trunc=200)
 rpg.devroye <- function(num=1, n=1, z=0.0)
 {
     ## Check Parameters.
-    if (sum(n<=0)!=0) {
-        print("n must be greater than zero.");
-        return(NA);
+    if (any(n<0)) {
+      print("n must be greater than zero.");
+      return(NA);
     }
 
     x = rep(0, num);
@@ -67,21 +63,36 @@ rpg.devroye <- function(num=1, n=1, z=0.0)
     OUT[[1]]
 }
 
+## Draw PG(n, z)
+##------------------------------------------------------------------------------
+rpg <- function(num=1, n=1, z=0.0, trunc=200)
+{
+  n.int = floor(n)
+  n.rem = n - n.int
+  
+  x.int = rpg.devroye(num, n.int, z)
+  x.rem = rpg.gamma(num, n.rem, z)
+
+  out = x.int + x.rem
+
+  out
+}
+
 ################################################################################
                                  ## Utility ##
 ################################################################################
 
 ## Check parameters to prevent an obvious error.
 ##------------------------------------------------------------------------------
-check.parameters <- function(y, n, y.prior, x.prior, n.prior, R.X, C.X, samp, burn)
+check.parameters <- function(y, n, m0, P0, R.X, C.X, samp, burn)
 {
     ok = rep(TRUE, 8);
     ok[1] = all(y >= 0);
     ok[2] = all(n > 0);
-    ok[3] = (y.prior >= 0);
-    ok[4] = (n.prior >= 0);
+    ok[3] = C.X==nrow(P0);
+    ok[4] = C.X==ncol(P0);
     ok[5] = (length(y) == length(n) && length(y) == R.X);
-    ok[6] = (length(x.prior) == C.X);
+    ok[6] = C.X==length(m0);
     ok[7] = (samp > 0);
     ok[8] = (burn >=0);
     ok[9] = all(y <= 1);
@@ -89,13 +100,13 @@ check.parameters <- function(y, n, y.prior, x.prior, n.prior, R.X, C.X, samp, bu
     if (!ok[1]) print("y must be >= 0.");
     if (!ok[9]) print("y is a proportion; it must be <= 1.");
     if (!ok[2]) print("n must be > 0.");
-    if (!ok[3]) print(paste("y.prior must be >= 0: y.prior =", y.prior));
-    if (!ok[4]) print(paste("n.prior must be >= 0. n.prior =", n.prior));
+    if (!ok[3]) print(paste("col(X) != row(P0)", C.X, nrow(P0)));
+    if (!ok[4]) print(paste("col(X) != col(P0)", C.X, ncol(P0)));
     if (!ok[5]) print(paste("Dimensions do not conform for y, X, and n.",
                             "len(y) =", length(y),
                             "dim(x) =", R.X, C.X,
                             "len(n) =", length(n)));
-    if (!ok[6]) print(paste("x prior does not conform to data: x.prior =", x.prior));
+    if (!ok[6]) print(paste("col(X) != length(m0)", C.X, length(m0)));
     if (!ok[7]) print("samp must be > 0.");
     if (!ok[8]) print("burn must be >=0.");
 
@@ -104,37 +115,28 @@ check.parameters <- function(y, n, y.prior, x.prior, n.prior, R.X, C.X, samp, bu
 
 ## Combine
 ##------------------------------------------------------------------------------
-logit.combine <- function(y, X, n=rep(1,length(y)),
-                          y.prior=0.5, x.prior=colMeans(as.matrix(X)), n.prior=1.0)
+logit.combine <- function(y, X, n=rep(1,length(y)))
 {
     X = as.matrix(X);
 
     N = dim(X)[1];
     P = dim(X)[2];
 
-    ok = check.parameters(y, n, y.prior, x.prior, n.prior, N, P, 1, 0);
+    m0 = matrix(0, nrow=P);
+    P0 = matrix(0, nrow=P, ncol=P);
+    
+    ok = check.parameters(y, n, m0, P0, N, P, 1, 0);
     if (!ok) return(-1);
 
     ## Our combine_data function, written in C, uses t(X).
     tX = t(X);
 
-    ## Add prior as extra data point.
-    if (n.prior > 0) {
-        y  = c(y, y.prior);
-        tX = cbind(tX, x.prior);
-        n  = c(n, n.prior);
-        N  = N +1;
-    }
-    ## Don't need prior now.
-    n.prior = 0.0
-
     OUT = .C("combine",
              as.double(y), as.double(tX), as.double(n),
-             as.double(y.prior), as.double(x.prior), as.double(n.prior),
              as.integer(N), as.integer(P),
              PACKAGE="BayesLogit");
 
-    N = OUT[[7]];
+    N = OUT[[4]];
 
     y  = array(as.numeric(OUT[[1]]), dim=c(N));
     tX = array(as.numeric(OUT[[2]]), dim=c(P, N));
@@ -150,25 +152,24 @@ logit.combine <- function(y, X, n=rep(1,length(y)),
 ## Posterior by Gibbs
 ##------------------------------------------------------------------------------
 logit <- function(y, X, n=rep(1,length(y)),
-                        y.prior=0.5, x.prior=colMeans(as.matrix(X)), n.prior=1.0,
-                        samp=1000, burn=500)
+                  m0=rep(0, ncol(X)), P0=matrix(0, nrow=ncol(X), ncol=ncol(X)),
+                  samp=1000, burn=500)
 {
     ## In the event X is one dimensional.
     X = as.matrix(X);
 
     ## Combine data.  We do this so that the auxiliary variable matches the
     ## data.
-    new.data = logit.combine(y, X, n, y.prior, x.prior, n.prior);
+    new.data = logit.combine(y, X, n);
     y = new.data$y;
     X = new.data$X;
     n = new.data$n;
-    n.prior = 0.0;
 
     ## Check that the data and priors are okay.
     N = dim(X)[1];
     P = dim(X)[2];
 
-    ok = check.parameters(y, n, y.prior, x.prior, n.prior, N, P, samp, burn);
+    ok = check.parameters(y, n, m0, P0, N, P, samp, burn);
     if (!ok) return(-1)
 
     ## Initialize output.
@@ -182,15 +183,15 @@ logit <- function(y, X, n=rep(1,length(y)),
     ## Our Logit function, written in C, uses t(X).
     tX = t(X);
 
-    OUT = .C("gibbs",
-             w, beta,
-             as.double(y), as.double(tX), as.double(n),
-             as.double(y.prior), as.double(x.prior), as.double(n.prior),
-             as.integer(N), as.integer(P),
-             as.integer(samp), as.integer(burn),
-             PACKAGE="BayesLogit");
+    OUT <- .C("gibbs",
+              w, beta,
+              as.double(y), as.double(tX), as.double(n),
+              as.double(m0), as.double(P0),
+              as.integer(N), as.integer(P),
+              as.integer(samp), as.integer(burn),
+              PACKAGE="BayesLogit");
 
-    N = OUT[[9]];
+    N = OUT[[8]];
 
     tempw = array( as.numeric(OUT[[1]]), dim=c(N, samp) );
 
@@ -202,18 +203,26 @@ logit <- function(y, X, n=rep(1,length(y)),
 ## Posterior mode by EM
 ##------------------------------------------------------------------------------
 logit.EM <- function(y, X, n=rep(1, length(y)),
-                     y.prior=0.5, x.prior=colMeans(as.matrix(X)), n.prior=1.0,
                      tol=1e-9, max.iter=100)
 {
 
     ## In the event X is one dimensional.
     X = as.matrix(X);
 
+    ## Combine data.  May speed things up.
+    new.data = logit.combine(y, X, n);
+    y = new.data$y;
+    X = new.data$X;
+    n = new.data$n;
+
     ## Check that the data and priors are okay.
     N = dim(X)[1];
     P = dim(X)[2];
 
-    ok = check.parameters(y, n, y.prior, x.prior, n.prior, N, P, 1, 0);
+    m0 = matrix(0, nrow=P);
+    P0 = matrix(0, nrow=P, ncol=P);
+
+    ok = check.parameters(y, n, m0, P0, N, P, 1, 0);
     if (!ok) return(-1);
 
     ## Initialize output.
@@ -225,12 +234,11 @@ logit.EM <- function(y, X, n=rep(1, length(y)),
     OUT = .C("EM",
              beta,
              as.double(y), as.double(tX), as.double(n),
-             as.double(y.prior), as.double(x.prior), as.double(n.prior),
              as.integer(N), as.integer(P),
              as.double(tol), as.integer(max.iter),
              PACKAGE="BayesLogit");
 
-    list("beta"=OUT[[1]], "iter"=OUT[[11]]);
+    list("beta"=OUT[[1]], "iter"=OUT[[8]]);
 }
 
 ################################################################################
