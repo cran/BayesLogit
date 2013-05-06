@@ -19,13 +19,13 @@
                                ## POLYAGAMMA ##
 ################################################################################
 
-## Draw PG(n, z)
+## Draw PG(h, z)
 ##------------------------------------------------------------------------------
-rpg.gamma <- function(num=1, n=1, z=0.0, trunc=200)
+rpg.gamma <- function(num=1, h=1, z=0.0, trunc=200)
 {
     ## Check Parameters.
-    if (sum(n<0)!=0) {
-        print("b must be greater than zero.");
+    if (sum(h<0)!=0) {
+        print("h must be greater than zero.");
         return(NA);
     }
     if (trunc < 1) {
@@ -35,10 +35,10 @@ rpg.gamma <- function(num=1, n=1, z=0.0, trunc=200)
 
     x = rep(0, num);
 
-    if (length(n) != num) { n = array(n, num); }
+    if (length(h) != num) { h = array(h, num); }
     if (length(z) != num) { z = array(z, num); }
 
-    OUT = .C("rpg_gamma", x, n, z, as.integer(num), as.integer(trunc), PACKAGE="BayesLogit");
+    OUT = .C("rpg_gamma", x, h, z, as.integer(num), as.integer(trunc), PACKAGE="BayesLogit");
 
     OUT[[1]]
 }
@@ -63,20 +63,75 @@ rpg.devroye <- function(num=1, n=1, z=0.0)
     OUT[[1]]
 }
 
+## Draw PG(h, z) where h is \geq 1.
+##------------------------------------------------------------------------------
+rpg.alt <- function(num=1, h=1, z=0.0)
+{
+    ## Check Parameters.
+    if (any(h<1)) {
+      print("h must be >= 1.");
+      return(NA);
+    }
+
+    x = rep(0, num);
+
+    if (length(h) != num) { h = array(h, num); }
+    if (length(z) != num) { z = array(z, num); }
+
+    OUT = .C("rpg_alt", x, h, z, as.integer(num), PACKAGE="BayesLogit");
+
+    OUT[[1]]
+}
+
+
+## Draw PG(h, z) using SP approx where h is \geq 1.
+##------------------------------------------------------------------------------
+rpg.sp <- function(num=1, h=1, z=0.0, track.iter=FALSE)
+{
+    ## Check Parameters.
+    if (any(h<1)) {
+      print("h must be >= 1.");
+      return(NA);
+    }
+
+    x = rep(0, num);
+    iter = rep(0, num);
+
+    if (length(h) != num) { h = array(h, num); }
+    if (length(z) != num) { z = array(z, num); }
+
+    ## Faster if we do not track iter.
+    OUT = .C("rpg_sp", x, h, z, as.integer(num), as.integer(iter), PACKAGE="BayesLogit");
+
+    out = list()
+    if (!track.iter)
+      out = OUT[[1]]
+    else
+      out = list(samp=OUT[[1]], iter=OUT[[5]])
+    out
+}
+
 ## Draw PG(n, z)
 ##------------------------------------------------------------------------------
-rpg <- function(num=1, n=1, z=0.0, trunc=200)
+rpg <- function(num=1, h=1, z=0.0)
 {
-  n.int = floor(n)
-  n.rem = n - n.int
-  
-  x.int = rpg.devroye(num, n.int, z)
-  x.rem = rpg.gamma(num, n.rem, z)
+    ## Check Parameters.
+    if (any(h<1)) {
+      print("h must be >= 1.");
+      return(NA);
+    }
 
-  out = x.int + x.rem
+    x = rep(0, num);
 
-  out
+    if (length(h) != num) { h = array(h, num); }
+    if (length(z) != num) { z = array(z, num); }
+
+    ## Faster if we do not track iter.
+    OUT = .C("rpg_hybrid", x, h, z, as.integer(num), PACKAGE="BayesLogit");
+
+    OUT[[1]]
 }
+## rpg <- rpg.alt
 
 ################################################################################
                                  ## Utility ##

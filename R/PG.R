@@ -239,7 +239,7 @@ rpg.alt.1 <- function(Z)
 
 ## Sample PG(1.0, Z) using accept/reject.
 ##------------------------------------------------------------------------------
-rpg.alt <- function(num=1, Z=0.0)
+rpg.alt.R <- function(num=1, Z=0.0)
 {
   Z = array(Z, num);
   x = rep(0, num);

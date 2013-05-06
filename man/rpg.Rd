@@ -2,10 +2,12 @@
 \name{rpg}
 
 \alias{rpg}
-\alias{rpg.gamma}
-\alias{rpg.gamma.R}
 \alias{rpg.devroye}
-\alias{rpg.devroye.R}
+\alias{rpg.gamma}
+\alias{rpg.alt}
+\alias{rpg.sp}
+%\alias{rpg.gamma.R}
+%\alias{rpg.devroye.R}
 
 \title{The Polya-Gamma Distribution}
 
@@ -35,9 +37,15 @@
 
 \usage{
 
-rpg.gamma(num=1, n=1, z=0.0, trunc=200)
+rpg(num=1, h=1, z=0.0)
+
+rpg.gamma(num=1, h=1, z=0.0, trunc=200)
 
 rpg.devroye(num=1, n=1, z=0.0)
+
+rpg.alt(num=1, h=1, z=0.0)
+
+rpg.sp(num=1, h=1, z=0.0, track.iter=FALSE)
 
 }
 
@@ -50,9 +58,11 @@ rpg.devroye(num=1, n=1, z=0.0)
   You may call rpg when n and z are vectors.
 
   \item{num}{The number of random variates to simulate.}
-  \item{n}{Shape parameter.}
+  \item{n}{Shape parameter, a positive integer}
+  \item{h}{Shape parameter.  code{h} >= 1 if not using sum of gammas method.}
   \item{z}{Parameter associated with tilting.}
   \item{trunc}{The number of elements used in sum of gammas approximation.}
+  \item{track.iter}{The number of proposals made before accepting.}
 }
 
 \value{
@@ -63,17 +73,20 @@ rpg.devroye(num=1, n=1, z=0.0)
 
 \examples{
 
-a = c(1, 2, 3);
-b = c(4, 5, 6);
+h = c(1, 2, 3);
+z = c(4, 5, 6);
 
-## If a is only integers, use Devroye-like method.
-X = rpg.devroye(100, a, b);
+## If h contains small integers, e.g. {1,2,3}, use Devroye-like method.
+X = rpg.devroye(100, h, z);
 
-a = c(1.2, 2.3, 3.2);
-b = c(4, 5, 6);
+h = c(1.2, 2.3, 3.2);
+z = c(4, 5, 6);
 
-## If a has scalars use sum-of-gammas method.
-X = rpg.gamma(100, a, b);
+## Else if h contains scalars >=1 or larger integers use alternate Devroye-like method.
+X = rpg(100, h, z);
+
+## Else sum of gammas method -- this is slow.
+X = rpg.gamma(100, h, z);
 
 }
 

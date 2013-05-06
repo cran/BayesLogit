@@ -92,7 +92,7 @@ output = logit.EM(y, X);
   logistic models using Polya-Gamma latent variables.
   \url{http://arxiv.org/abs/1205.0310}
 
-  Nicholas Poslon and James G. Scott.  Default Bayesian analysis for
+  Nicholas G. Poslon and James G. Scott.  Default Bayesian analysis for
   multi-way tables: a data-augmentation approach.
   \url{http://arxiv.org/pdf/1109.4180}
 }

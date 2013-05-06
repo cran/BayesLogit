@@ -27,6 +27,8 @@
 #include "MultLogit.h"
 #include "RNG.h"
 #include "PolyaGamma.h"
+#include "PolyaGammaAlt.h"
+#include "PolyaGammaSP.h"
 #include <exception>
 #include <stdio.h>
 
@@ -81,6 +83,86 @@ void rpg_devroye(double *x, int *n, double *z, int *num)
   PutRNGstate();
   #endif
 } // rpg
+
+void rpg_alt(double *x, double *h, double *z, int* num)
+{
+  RNG r;
+  PolyaGammaAlt pg;
+
+  #ifdef USE_R
+  GetRNGstate();
+  #endif
+
+  for(int i=0; i < *num; ++i){
+    if (h[i]!=0)
+      x[i] = pg.draw(h[i], z[i], r);
+    else
+      x[i] = 0.0;
+  }
+
+  #ifdef USE_R
+  PutRNGstate();
+  #endif
+}
+
+void rpg_sp(double *x, double *h, double *z, int* num, int *iter)
+{
+  RNG r;
+  PolyaGammaSP pg;
+  
+  #ifdef USE_R
+  GetRNGstate();
+  #endif
+
+  for(int i=0; i < *num; ++i){
+    if (h[i]!=0)
+      iter[i] = pg.draw(x[i], h[i], z[i], r);
+    else
+      x[i] = 0.0;
+  }
+
+  #ifdef USE_R
+  PutRNGstate();
+  #endif
+}
+
+void rpg_hybrid(double *x, double *h, double *z, int* num)
+{
+  RNG r;
+  PolyaGamma dv;
+  PolyaGammaAlt alt;
+  PolyaGammaSP sp;
+  
+  #ifdef USE_R
+  GetRNGstate();
+  #endif
+
+  for(int i=0; i < *num; ++i){
+    double b = h[i];
+    if (b > 170) {
+      double m = dv.pg_m1(b,z[i]);
+      double v = dv.pg_m2(b,z[i]) - m*m;
+      x[i] = r.norm(m, sqrt(v));
+    }
+    else if (b > 13) {
+      sp.draw(x[i], b, z[i], r);
+    }
+    else if (b==1 || b==2) {
+      x[i] = dv.draw((int)b, z[i], r);
+    }
+    else if (b > 0) {
+      x[i] = alt.draw(b, z[i], r);
+    }
+    else {
+      x[i] = 0.0;
+    }
+  }
+
+  #ifdef USE_R
+  PutRNGstate();
+  #endif
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 			   // POSTERIOR INFERENCE //

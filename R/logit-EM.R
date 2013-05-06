@@ -57,7 +57,7 @@ logit.EM.R <- function(y, X, n=rep(1,length(y)),
 
         hpsi = 0.5 * psi;
         for ( i in 1:N ) {
-            if ( psi[i]<0.01 )
+            if ( abs(hpsi[i])<0.01 )
             {
                 b = hpsi[i]
                 ## tanh(x)/x ~ cosh(x)^{-1} (1 + x^2/6 + ...) by Taylor expansion.
@@ -74,6 +74,7 @@ logit.EM.R <- function(y, X, n=rep(1,length(y)),
 
         ch = chol(t(X)%*%(X*w))
         beta = backsolve(ch, forwardsolve(t(ch),Z))
+        ## beta = solve(t(ch), Z)
 
         ## A = t(X) %*% (X*w);
         ## for (i in 1:p) {

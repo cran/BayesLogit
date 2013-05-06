@@ -95,7 +95,7 @@ public:
   inline void draw_beta(MF beta, MF w, RNG& r);
   void gibbs(Matrix& w, Matrix& beta, int samp, int burn, RNG& r);
 
-  double gibbs_block(MF beta_space, MF w_space, 
+  double gibbs_block(MF beta_space, MF w_space,
 		     MF beta_init, MF w_init,
 		     int samp, int period, RNG& r);
 
@@ -288,11 +288,11 @@ inline void Logit::draw_w(MF w, MF psi, RNG& r)
 inline void Logit::draw_beta(MF beta, MF w, RNG& r)
 {
   // tXRtOm = tX sqrt(Om)
-  Matrix tXRtOm(P, N); 
+  Matrix tXRtOm(P, N);
   for(unsigned int j=0; j<tX.cols(); j++)
     for(unsigned int i=0; i<tX.rows(); i++)
       tXRtOm(i,j) = tX(i,j) * sqrt(w(j));
-  
+
   // PP = X' Om X + P0.
   PP = P0; syrk(PP, tXRtOm, 'N', 1.0, 1.0);
 
@@ -337,7 +337,7 @@ inline void Logit::draw_beta(MF beta, MF w, MF beta_prev, RNG& r)
   // }
 }
 
-double Logit::gibbs_block(MF beta_space, MF w_space, 
+double Logit::gibbs_block(MF beta_space, MF w_space,
 			  MF beta_init, MF w_init,
 			  int samp, int period, RNG& r)
 {
@@ -428,22 +428,26 @@ int Logit::EM(Matrix& beta, double tol, int max_iter)
   // Preprocess.
   set_bP();
 
+  Matrix U; 
   Matrix psi(N);
   Matrix w(N);
   double dist = tol + 1.0;
 
   // Proper size.
   beta.resize(P);
+  beta.fill(0.0);
 
   int  iter = 0;
   while (dist > tol && iter < max_iter) {
+
+    // std::cout << beta;
 
     // w: posterior mean
     gemm(psi, tX, beta, 'T', 'N');
     for (int i = 0; i < (int)N; ++i) {
       double hpsi = psi(i) * 0.5;
       // n * tanh(psi/2) / (psi/2) * 0.5
-      if ( hpsi < 0.01 ) {
+      if ( fabs(hpsi) < 0.01 ) {
 	w(i) = n(i) / cosh(hpsi)
 	  * (1 + hpsi*hpsi / 6.0 + pow(hpsi, 4.0) / 120.0 + pow(hpsi, 6) / 5040.0)
 	  * 0.25 ;
@@ -456,19 +460,25 @@ int Logit::EM(Matrix& beta, double tol, int max_iter)
     Matrix old_beta(beta);
 
     // tXRtOm = tX sqrt(Om)
-    Matrix tXRtOm(P, N); 
-    for(unsigned int j=0; j<tX.cols(); j++)
-      for(unsigned int i=0; i<tX.rows(); i++)
-	tXRtOm(i,j) = tX(i,j) * sqrt(w(j));
-    
+    Matrix tXRtOm(P, N);
+    for(unsigned int j=0; j<tX.cols(); j++) {
+      double rtw = sqrt(w(j));
+      for(unsigned int i=0; i<tX.rows(); i++) {
+	tXRtOm(i,j) = tX(i,j) * rtw;
+      }
+    }
+
     // PP = X' Om X + P0.
-    PP = P0; syrk(PP, tXRtOm, 'N', 1.0, 1.0);
-    
-    Matrix U; chol(U, PP, 'U');
+    PP = P0;
+    // syrk(PP, tXRtOm, 'N', 1.0, 1.0);
+    gemm(PP, tXRtOm, tXRtOm, 'N', 'T', 1.0, 1.0);
+
+    chol(U, PP, 'U');
     beta.clone(bP);
     trsm(U, beta,   'U', 'L', 'T'); // U' y = bP
     trsm(U, beta,   'U', 'L', 'N'); // U beta = y
-    
+    // symsolve(PP, beta);
+
     // Check how much we improved.
     // Matrix diff = beta - old_beta;
     // dist = sqrt( dot(diff, diff) );

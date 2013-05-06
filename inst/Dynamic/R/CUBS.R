@@ -209,3 +209,184 @@ CUBS.C <- function(z, X, n, mu, phi, W, m0, C0,
      
   out = list("alpha"=OUT[[1]], "beta"=OUT[[2]], "log.dens"=OUT[[14]]);
 }
+
+################################################################################
+                                  ## CHECK ##
+################################################################################
+
+if (FALSE) {
+  ## 1-D
+
+  T = 200
+
+  phi = 0.95
+  W   = 0.1
+  mu  = 0
+  b.m0  = mu
+  b.C0  = matrix(W / (1-phi^2), 1, 1)
+
+  alpha = 1
+  X = matrix(1, nrow=T, ncol=2)
+  m0 = c(alpha, b.m0)
+  C0 = diag(c(2, diag(b.C0)), 2)
+  ## m0 = b.m0
+  ## C0 = b.C0
+  
+  beta = rep(alpha, T+1)
+  for (i in 1:T)
+    beta[i+1] = phi * beta[i] + rnorm(1, 0, sqrt(W))
+
+  V = 0.2 + runif(T, 0, 0.1)
+  y = alpha + beta[-1] + rnorm(T, 0, sqrt(V))
+
+  y.bwd = y[T:1]
+  X.bwd = X[T:1,,drop=FALSE]
+
+  samp = 1000
+  
+  beta.fwd = array(0, dim=c(samp, T+1))
+  beta.bwd = array(0, dim=c(samp, T+1))
+  alpha.fwd = rep(0, samp)
+  alpha.bwd = rep(0, samp)
+
+  ## Make sure things look the same going forwards as backwards w/ stationarity.
+  for (i in 1:samp) {
+    out = CUBS.C(y, X, V, mu, phi, W, m0, C0, "norm");
+    beta.fwd[i,] = as.numeric(out$beta)
+    alpha.fwd[i] = as.numeric(out$alpha)
+    out = CUBS.C(y.bwd, X.bwd, V, mu, phi, W, m0, C0, "norm");
+    beta.bwd[i,] = as.numeric(out$beta)
+    alpha.bwd[i] = as.numeric(out$alpha)
+  }
+
+  fwd.mean = apply(beta.fwd, 2, mean)
+  bwd.mean = apply(beta.bwd, 2, mean)
+
+  alpha.fwd.mean = mean(alpha.fwd)
+  alpha.bwd.mean = mean(alpha.bwd)
+
+  par(mfrow=c(2,1))
+  plot(beta[-1], type="l")
+  lines(fwd.mean[-1], col=2)
+  lines(rev(bwd.mean[-1]), col=3)
+  
+  plot(y, type="l")
+  lines(fwd.mean[-1] + alpha.fwd.mean, col=2)
+  lines(rev(bwd.mean[-1]) + alpha.bwd.mean, col=3)
+  
+  alpha.fwd.mean
+  alpha.bwd.mean
+  
+}
+
+##------------------------------------------------------------------------------
+
+##------------------------------------------------------------------------------
+
+if (FALSE) {
+  ## 2-D
+
+  T = 200
+  P = 2
+
+  phi = rep(0.95, P)
+  W   = rep(0.1, P)
+  mu  = rep(0, P)
+  b.m0  = mu
+  b.C0  = diag(W / (1-phi^2), P)
+
+  ## phi = rep(1  , P)
+  ## W   = rep(0.1, P)
+  ## b.m0 = mu
+  ## b.C0 = diag(1, P)
+  
+  xgrid = seq(-1, 1, length.out=T)
+  tX = matrix(0, nrow=P, ncol=T);
+  freq = c(0, 2, 4, 6)
+  ## freq = c(1, 1.1, 1.2, 1.3)
+  for (i in 1:P)
+    tX[i,] = cos(freq[i] * pi * xgrid);
+  ## tX[1,] = rep(c(0,1), T/2)
+  ## tX[2,] = rep(c(1,0), T/2)
+
+  ## tX[1,] = rep(1, T)
+  ## tX[2,] = rep(0, T)
+
+  X.dyn = t(tX)
+  alpha = 0
+  ##X = cbind(1, X.dyn)
+  ##m0 = c(alpha, b.m0)
+  ##C0 = diag(c(2, diag(b.C0)), P+1)
+  X = X.dyn
+  m0 = b.m0
+  C0 = b.C0
+  
+  beta = matrix(alpha, ncol=T+1, nrow=P)
+  for (i in 1:T)
+    beta[,i+1] = phi * beta[,i] + rnorm(P, 0, sqrt(W))
+
+  xbeta = beta[,-1] * t(X.dyn)
+  
+  V = 0.2 + runif(T, 0, 0.1)
+  V = V / 1
+  psi = alpha + apply(xbeta, 2, sum) 
+  y = psi + rnorm(T, 0, sqrt(V))
+
+  y.bwd = y[T:1]
+  X.bwd = X[T:1,,drop=FALSE]
+
+  samp = 1000
+
+  beta.fwd = array(0, dim=c(samp, P, T+1))
+  beta.bwd = array(0, dim=c(samp, P, T+1))
+  beta.3   = array(0, dim=c(samp, 1, T+1))
+  alpha.fwd = rep(0, samp)
+  alpha.bwd = rep(0, samp)
+  alpha.3   = rep(0, samp)
+
+  ## out.1 = FFBS.C(y, X, V, mu, phi, diag(W, P), m0, C0);
+  ## out.2 = FFBS.C(y, X[,1,drop=FALSE], V, mu[1], phi[1], diag(W[1], 1), m0[1], diag(C0[1],1));
+  
+  ## Make sure things look the same going forwards as backwards w/ stationarity.
+  for (i in 1:samp) {
+    out = CUBS.C(y, X, V, mu, phi, diag(W, P), m0, C0, "norm");
+    ## out = FFBS.C(y, X, V, mu, phi, diag(W, P), m0, C0);
+    beta.fwd[i,,] = as.numeric(out$beta)
+    alpha.fwd[i] = as.numeric(out$alpha)
+    out = CUBS.C(y.bwd, X.bwd, V, mu, phi, diag(W,P), m0, C0, "norm");
+    ## out = FFBS.C(y.bwd, X.bwd, V, mu, phi, diag(W,P), m0, C0);
+    beta.bwd[i,,] = as.numeric(out$beta)
+    alpha.bwd[i] = as.numeric(out$alpha)
+    out = FFBS.C(y, X[,1,drop=FALSE], V, mu[1], phi[1], diag(W[1], 1), m0[1], diag(C0[1],1));
+    ## beta.3[i,,] = out$beta
+    ## alpha.3[i]  = out$alpha
+  }
+
+  fwd.mean = apply(beta.fwd, c(2,3), mean)
+  bwd.mean = apply(beta.bwd, c(2,3), mean)
+  ## b3.mean  = apply(beta.3  , c(2,3), mean)
+  
+  alpha.fwd.mean = mean(alpha.fwd)
+  alpha.bwd.mean = mean(alpha.bwd)
+
+  par(mfrow=c(P+1,1))
+  for (i in 1:P) {
+    plot(beta[i,-1], type="l")
+    lines(fwd.mean[i,-1], col=2)
+    lines(rev(bwd.mean[i,-1]), col=3)
+    ## readline("<ENTER>")
+  }
+
+  psi.fwd = apply(fwd.mean[,-1,drop=FALSE] * tX, 2, sum) + alpha.fwd.mean 
+  psi.bwd = apply(bwd.mean[,(T:1)+1,drop=FALSE] * tX, 2, sum) + alpha.bwd.mean
+  
+  plot(y, type="l")
+  lines(psi.fwd, col=2)
+  lines(psi.bwd, col=3)
+  lines(psi, col=4)
+
+  ## alpha.fwd.mean
+  ## alpha.bwd.mean
+  
+}
+

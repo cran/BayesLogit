@@ -130,17 +130,18 @@ FFBS.C <- function(z, X, V, mu, phi, W, m0, C0)
 
   alpha = rep(0, max(N.a, 1));
   beta  = array(0, dim=c(N.b, T+1));
+  ldens = 0.0
   
   OUT <- .C("ffbs", alpha, beta,
             z, X, V, 
             mu, phi, W,
             m0, C0,
-            as.integer(N.b), as.integer(N), as.integer(T),
+            as.integer(N.b), as.integer(N), as.integer(T), ldens,
             PACKAGE="BayesLogit");
 
   ## void ffbs(double *alpha_, double *beta_,
   ##         double *z_, double *X_, double *mu_, double *phi_, double *W_, double *V_,
   ##         double *m0_, double *C0_, int N_b, int N, int T)
      
-  out = list("alpha"=OUT[[1]], "beta"=OUT[[2]]);
+  out = list("alpha"=OUT[[1]], "beta"=OUT[[2]], "ldens"=OUT[[14]]);
 }
