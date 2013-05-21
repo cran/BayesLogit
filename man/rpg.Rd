@@ -76,17 +76,17 @@ rpg.sp(num=1, h=1, z=0.0, track.iter=FALSE)
 h = c(1, 2, 3);
 z = c(4, 5, 6);
 
-## If h contains small integers, e.g. {1,2,3}, use Devroye-like method.
+## Devroye-like method -- only use if h contains integers, preferably small integers.
 X = rpg.devroye(100, h, z);
 
 h = c(1.2, 2.3, 3.2);
 z = c(4, 5, 6);
 
-## Else if h contains scalars >=1 or larger integers use alternate Devroye-like method.
-X = rpg(100, h, z);
-
-## Else sum of gammas method -- this is slow.
+## Sum of gammas method -- this is slow.
 X = rpg.gamma(100, h, z);
+
+## Hybrid method -- automatically chooses best procedure.
+X = rpg(100, h, z);
 
 }
 

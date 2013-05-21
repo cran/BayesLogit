@@ -1,6 +1,6 @@
 Package: BayesLogit
-Version: 0.2-2
-Date: 2013-05-06
+Version: 0.2-4
+Date: 2013-05-21
 Title: Logistic Regression
 Author: Nicholas G. Polson, James G. Scott, and Jesse Windle
 Maintainer: Jesse Windle <jwindle@ices.utexas.edu>
@@ -11,7 +11,7 @@ Description: The BayesLogit package does posterior simulation for
         from the Polya-Gamma class of distributions is included.
 License: GPL (>= 3)
 Depends: R (>= 2.14.0)
-Packaged: 2013-05-07 15:28:10 UTC; jwindle
+Packaged: 2013-11-12 11:25:37 UTC; ripley
 NeedsCompilation: yes
 Repository: CRAN
-Date/Publication: 2013-05-07 19:03:24
+Date/Publication: 2013-11-12 12:29:24

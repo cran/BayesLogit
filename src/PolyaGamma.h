@@ -42,7 +42,7 @@ class PolyaGamma
 
   // For sum of Gammas.
   int T;
-  vector<double> b;
+  vector<double> bvec;
 
  public:
 

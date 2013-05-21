@@ -138,9 +138,9 @@ class Block : public Frame<SCLR>
   // Read //
   uint load(istream&  is, bool header=0, bool binary=0); // Load saved data set.
   uint read(istream& is, bool natural=true);             // Read a matrix, natural (row-wise) or transpose (col-wise).
-  uint read(const string& file, bool natural=true);
   uint readString(const string& s, bool natural=true);
   #ifndef DISABLE_FIO
+  uint read(const string& file, bool natural=true);
   uint load(const string& file, bool header=0, bool binary=0);
   #endif
 
@@ -425,19 +425,6 @@ uint Block<SCLR>::load( std::istream& is, bool header, bool binary)
   return n;
 } // read
 
-#ifndef DISABLE_FIO
-template<typename SCLR>
-uint Block<SCLR>::load(const string& file, bool header, bool binary)
-{
-  std::ifstream ifs(file.c_str());
-  if(!ifs){
-    Rprintf( "Cannot read file %s.\n", file.c_str());
-    return 0;
-  }
-  return load(ifs, header, binary);
-} // read
-#endif
-
 template<typename SCLR>
 uint Block<SCLR>::readString(const string& s, bool natural)
 {
@@ -450,7 +437,7 @@ uint Block<SCLR>::read(istream& is, bool natural)
 {
   uint totalread = 0;
   uint numrows   = 0;
-  uint nummat    = 0;
+  // uint nummat    = 0;
 
   vector<SCLR> space(0);
 
@@ -489,7 +476,7 @@ uint Block<SCLR>::read(istream& is, bool natural)
 
   }
 
-  int numcols = totalread / numrows;
+  uint numcols = totalread / numrows;
   if (totalread % numrows != 0) {
     Rprintf( "Warning: Number of rows read does not evenly divide number of items read.\n");
     numcols++;
@@ -529,6 +516,18 @@ uint Block<SCLR>::read(istream& is, bool natural)
   return totalread;
 }
 
+#ifndef DISABLE_FIO
+template<typename SCLR>
+uint Block<SCLR>::load(const string& file, bool header, bool binary)
+{
+  std::ifstream ifs(file.c_str());
+  if(!ifs){
+    Rprintf( "Cannot read file %s.\n", file.c_str());
+    return 0;
+  }
+  return load(ifs, header, binary);
+} // read
+
 template<typename SCLR>
 uint Block<SCLR>::read(const string& file, bool natural)
 {
@@ -539,7 +538,7 @@ uint Block<SCLR>::read(const string& file, bool natural)
   }
   return read(ifs, natural);
 }
-
+#endif
 
 //////////////////////////////////////////////////////////////////////
 		      // END OF CLASS METHODS //

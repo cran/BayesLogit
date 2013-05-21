@@ -7,7 +7,7 @@ using std::pow;
 			       // Constructors //
 ////////////////////////////////////////////////////////////////////////////////
 
-PolyaGamma::PolyaGamma(int trunc) : T(trunc), b(T)
+PolyaGamma::PolyaGamma(int trunc) : T(trunc), bvec(T)
 {
   set_trunc(T);
 } // PolyaGamma
@@ -18,16 +18,23 @@ PolyaGamma::PolyaGamma(int trunc) : T(trunc), b(T)
 
 void PolyaGamma::set_trunc(int trunc)
 {
-  if (trunc < 1)
+  
+  if (trunc < 1) {
+  #ifndef NTHROW
     throw std::invalid_argument("PolyaGamma(int trunc): trunc < 1.");
-
+  #else
+    Rprintf( "PolyaGamma(int trunc): trunc < 1.  Set trunc=1.\n");
+    trunc = 1;
+  #endif
+  }
+  
   T = trunc;
-  b.resize(T);
+  bvec.resize(T);
 
   for(int k=0; k < T; ++k){
     // + since we start indexing at 0.
     double d = ((double) k + 0.5);
-    b[k] = FOURPISQ * d * d;
+    bvec[k] = FOURPISQ * d * d;
   }
 } // set_trunc
 
@@ -118,7 +125,14 @@ double PolyaGamma::rtigauss(double Z, RNG& r)
 
 double PolyaGamma::draw(int n, double z, RNG& r)
 {
-  if (n < 1) throw std::invalid_argument("PolyaGamma::draw: n < 1.");
+  if (n < 1) {
+  #ifndef NTHROW
+    throw std::invalid_argument("PolyaGamma::draw: n < 1.");
+  #else
+    Rprintf( "PolyaGamma::draw: n < 1.  Set n = 1.\n");
+    n = 1;
+  #endif
+  }
   double sum = 0.0;
   for (int i = 0; i < n; ++i)
     sum += draw_like_devroye(z, r);
@@ -130,7 +144,7 @@ double PolyaGamma::draw_sum_of_gammas(double n, double z, RNG& r)
   double x = 0;
   double kappa = z * z;
   for(int k=0; k < T; ++k)
-    x += r.gamma_scale(n, 1.0) / (b[k] + kappa);
+    x += r.gamma_scale(n, 1.0) / (bvec[k] + kappa);
   return 2.0 * x;
 } // draw_sum_of_gammas
 
