@@ -22,44 +22,44 @@
 
 extern "C" {
 
-  // RPG
+    // RPG
 
-  void rpg_gamma(double *x, double *n, double *z, int *num, int *trunc);
+    void rpg_gamma(double *x, double *n, double *z, int *num, int *trunc);
 
-  void rpg_devroye(double *x, int *n, double *z, int *num);
+    void rpg_devroye(double *x, int *n, double *z, int *num);
 
-  void rpg_alt(double *x, double *h, double *z, int* num);
+    void rpg_alt(double *x, double *h, double *z, int* num);
 
-  void rpg_sp(double *x, double *h, double *z, int* num, int* iter);
+    void rpg_sp(double *x, double *h, double *z, int* num, int* iter);
 
-  void rpg_hybrid(double *x, double *h, double *z, int* num);
+    void rpg_hybrid(double *x, double *h, double *z, int* num);
 
-  // Default Logistic
+    // Default Logistic
 
-  void gibbs(double *wp, double *betap,                            // Posterior
-	     double *yp, double *tXp, double *np,                  // Data
-	     double *m0p, double *P0p,                             // Prior
-	     int *N, int *P,                                       // Dim
-	     int *samp, int *burn);                                // MCMC
+    void gibbs(double *wp, double *betap,                            // Posterior
+               double *yp, double *tXp, double *np,                  // Data
+               double *m0p, double *P0p,                             // Prior
+               int *N, int *P,                                       // Dim
+               int *samp, int *burn);                                // MCMC
 
-  void EM(double *betap,
-	  double *yp, double *tXp, double *np,
-	  int *Np, int *Pp,
-	  double *tolp, int *max_iterp);
+    void EM(double *betap,
+            double *yp, double *tXp, double *np,
+            int *Np, int *Pp,
+            double *tolp, int *max_iterp);
 
-  void combine(double *yp, double *tXp, double *np,
-	       int *N, int *P);
+    void combine(double *yp, double *tXp, double *np,
+                 int *N, int *P);
 
-  // Multinomial Logistic
+    // Multinomial Logistic
 
-  void mult_gibbs(double *wp, double *betap,
-		  double *typ, double *tXp, double *np,
-		  double *m0p, double *P0p,
-		  int *N, int *P, int *J,
-		  int *sampp, int *burnp);
+    void mult_gibbs(double *wp, double *betap,
+                    double *typ, double *tXp, double *np,
+                    double *m0p, double *P0p,
+                    int *N, int *P, int *J,
+                    int *sampp, int *burnp);
 
-  void mult_combine(double *typ, double *tXp, double *np,
-		    int *N, int *P, int *J);
+    void mult_combine(double *typ, double *tXp, double *np,
+                      int *N, int *P, int *J);
 
 }
 

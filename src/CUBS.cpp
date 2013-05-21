@@ -42,9 +42,17 @@ void cubs_norm(double *alpha_, double *beta_,
   Map<VectorXd> m0   (m0_   , N       );
   Map<MatrixXd> C0   (C0_   , N  , N  );
 
+  #ifdef USE_R
+  GetRNGstate();
+  #endif
+
   // NormUpdate norm;
   // cubs(alpha, beta, z, X, V, mu, phi, W, m0, C0, log_dens, norm, *eps_rel_, *max_iter_, r);
   cubs(alpha, beta, z, X, V, mu, phi, W, m0, C0, log_dens, &norm_post, *eps_rel_, *max_iter_, r);
+
+  #ifdef USE_R
+  PutRNGstate();
+  #endif
 }
 
 void cubs_binom(double *alpha_, double *beta_,

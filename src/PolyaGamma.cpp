@@ -211,7 +211,7 @@ double PolyaGamma::jj_m1(double b, double z)
   if (z > 1e-12)
     m1 = b * tanh(z) / z;
   else
-    m1 = b * (1 - (1/3) * pow(z,2) + (2/15) * pow(z,4) - (17/315) * pow(z,6));
+    m1 = b * (1 - (1.0/3) * pow(z,2) + (2.0/15) * pow(z,4) - (17.0/315) * pow(z,6));
   return m1;
 }
 
@@ -221,8 +221,8 @@ double PolyaGamma::jj_m2(double b, double z)
   if (z > 1e-12)
     m2 = (b+1) * b * pow(tanh(z)/z,2) + b * ((tanh(z)-z)/pow(z,3));
   else
-    m2 = (b+1) * b * pow(1 - (1/3) * pow(z,3) + (2/15) * pow(z,4) - (17/315) * pow(z,6), 2) +
-      b * ((-1/3) + (2/15) * z - (17/315) * pow(z,3));
+    m2 = (b+1) * b * pow(1 - (1.0/3) * pow(z,2) + (2.0/15) * pow(z,4) - (17.0/315) * pow(z,6), 2) +
+	b * ((-1.0/3) + (2.0/15) * pow(z,2) - (17.0/315) * pow(z,4));
   return m2;
 }
 

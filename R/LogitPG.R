@@ -1,19 +1,7 @@
-################################################################################
+## Copyright 2013 Nick Polson, James Scott, and Jesse Windle.
 
-## Copyright 2012 Nick Polson, James Scott, and Jesse Windle.
-
-## This file is part of BayesLogit.
-
-## BayesLogit is free software: you can redistribute it and/or modify it under
-## the terms of the GNU General Public License as published by the Free Software
-## Foundation, either version 3 of the License, or any later version.
-
-## BayesLogit is distributed in the hope that it will be useful, but WITHOUT ANY
-## WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-## A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-## You should have received a copy of the GNU General Public License along with
-## BayesLogit.  If not, see <http://www.gnu.org/licenses/>.
+## This file is part of BayesLogit, distributed under the GNU General Public
+## License version 3 or later and without ANY warranty, implied or otherwise.
 
 ################################################################################
                             ## POSTERIOR BY GIBBS ##
@@ -68,6 +56,7 @@ logit.R <- function(y, X, n=rep(1, length(y)),
     ## draw w
     psi = drop(X%*%beta)
     ## Sum of gamma: poor approximation when psi is large!  Causes crash.
+    ## w = rpg.gamma(N, n, psi)
     ## Devroye is faster anyway.
     w = rpg.devroye(N, n, psi);
 

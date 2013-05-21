@@ -67,7 +67,7 @@ double v_eval(double y, double tol, int max_iter)
   }
   else if (y==1) return 0.0;
     
-  double id = (log(y) / log(2.) + 4.0) / 0.1;
+  double id = (log(y) / log(2) + 4.0) / 0.1;
   // Rprintf("y, id, y[id], v[id]: %g, %g, %g, %g\n", y, id, ygrid[(int)id], vgrid[(int)id]);
 
   // C++ default is truncate decimal portion.

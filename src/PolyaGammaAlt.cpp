@@ -26,9 +26,9 @@ double rtinvchi2(double h, double trunc, RNG& r)
 double PolyaGammaAlt::a_coef(int n, double x, double h)
 {
   double d_n = 2.0 * (double) n + h;
-  double log_out = h * log(2.) - RNG::Gamma(h, true) + RNG::Gamma(n+h, true) \
+  double log_out = h * log(2) - RNG::Gamma(h, true) + RNG::Gamma(n+h, true) \
     - RNG::Gamma(n+1, true) + log(d_n)					\
-    - 0.5 * log(2. * __PI * x * x * x) - 0.5 * d_n * d_n / x;
+    - 0.5 * log(2 * __PI * x * x * x) - 0.5 * d_n * d_n / x;
   double out = exp(log_out);
   // double out = exp(out) is a legal command.  Weird.
   return out;
@@ -61,9 +61,9 @@ double PolyaGammaAlt::w_left(double trunc, double h, double z)
 {
   double out = 0;
   if (z != 0) 
-    out = exp(h * (log(2.) - z)) * pigauss(trunc, z/h, h*h);
+    out = exp(h * (log(2) - z)) * pigauss(trunc, z/h, h*h);
   else
-    out = exp(h * log(2.)) * (1.0 - RNG::p_gamma_rate(1/trunc, 0.5, 0.5*h*h));
+    out = exp(h * log(2)) * (1.0 - RNG::p_gamma_rate(1/trunc, 0.5, 0.5*h*h));
   return out;
 }
 
@@ -102,7 +102,7 @@ double PolyaGammaAlt::g_tilde(double x, double h, double trunc)
   if (x > trunc) 
     out = exp(h * log(0.5 * __PI) + (h-1) * log(x) - PISQ * 0.125 * x - RNG::Gamma(h, true));
   else 
-    out = h * exp( h * log(2.) - 0.5 * log(2 * __PI * x * x * x) - 0.5 * h * h / x);
+    out = h * exp( h * log(2) - 0.5 * log(2 * __PI * x * x * x) - 0.5 * h * h / x);
     // out = h * pow(2, h) * pow(2 * __PI * pow(x,3), -0.5) * exp(-0.5 * pow(h,2) / x);
   return out;
 }
@@ -132,7 +132,7 @@ double PolyaGammaAlt::draw_abridged(double h, double z, RNG& r, int max_inner)
 
   // Rprintf("prob_right: %g\n", prob_right);
   
-  double coef1_h = exp(h * log(2.) - 0.5 * log(2 * __PI));
+  double coef1_h = exp(h * log(2) - 0.5 * log(2 * __PI));
   // double gamma_nh_over_n = RNG::Gamma(h);
   double gnh_over_gn1_gh = 1.0; // Will fill in value on first call to a_coef_recursive.
 

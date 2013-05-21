@@ -1,3 +1,8 @@
+## Copyright 2013 Nick Polson, James Scott, and Jesse Windle.
+
+## This file is part of BayesLogit, distributed under the GNU General Public
+## License version 3 or later and without ANY warranty, implied or otherwise.
+
 
 ar1.llh.C <- function(beta, mu, phi, W, m0, C0, alpha=NULL)
 {

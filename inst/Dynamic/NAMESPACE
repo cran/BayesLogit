@@ -13,7 +13,8 @@ export(logit, logit.EM, mlogit, rpg.gamma, rpg.devroye, rks,
        compute.mixture, compute.mixture.lg, compute.mixture.l3,
        # draw.indicators.logis.C,
        CUBS.R, CUBS.C, ar1.llh.C,
-       draw.W.ar1.ind, draw.phi.ar1.ind, draw.mu.ar1.ind);
+       draw.W.ar1.ind, draw.phi.ar1.ind, draw.mu.ar1.ind,
+       draw.omega.mh, draw.stc.beta.mh);
 
 # For testing purposes.
 # logit.R, logit.EM.R, mlogit.R, rpg.gamma.R, rpg.devroye.R

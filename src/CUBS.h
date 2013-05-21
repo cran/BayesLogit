@@ -83,6 +83,9 @@ void cubs(MatrixBase<dV> &alpha, MatrixBase<dM> &beta,
   int N_a = N - N_b;
 
   // Rprintf("T=%i, N=%i, N_b=%i, N_a=%i\n", T, N, N_b, N_a);
+  // std::cout << "X:\n" << X << "\n";
+  // std::cout << "m0:" << m0.transpose() << "\n";
+  // std::cout << "C0:\n" << C0 << "\n";
 
   bool with_alpha = N_a > 0;
 
@@ -146,6 +149,8 @@ void cubs(MatrixBase<dV> &alpha, MatrixBase<dM> &beta,
   double ldens = 0;
   VectorXd draw(N); r.norm(draw, 1.0);
   // draw = VectorXd::Zero(N);
+
+  // std::cout << "m: " << m[T].transpose() << "\n";
 
   MatrixXd L = C[T].llt().matrixL();
   VectorXd theta = m[T] + L * draw;
