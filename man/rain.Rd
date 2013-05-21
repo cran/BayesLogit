@@ -22,7 +22,7 @@ Tokyo.
 
 \details{
 
-  This is the infamous Tokyo rainfall data from Kitagawa (1987).
+  This is the famous Tokyo rainfall data from Kitagawa (1987).
 
 }
 

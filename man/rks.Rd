@@ -3,10 +3,10 @@
 
 \alias{rks}
 
-\title{The Kolmogorov-Smirnov distribution}
+\title{Kolmogorov-Smirnov Random Variates}
 
 \description{
-  Generate a random variate from the Kolmogorov-Smirnov distribution.
+  Generate random variates from the Kolmogorov-Smirnov distribution.
 
   This is not directly related to the Polya-Gamma technique, but it is
   a nice example of using an alternating sum to generate a random
