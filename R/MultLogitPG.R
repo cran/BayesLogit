@@ -3,6 +3,8 @@
 ## This file is part of BayesLogit, distributed under the GNU General Public
 ## License version 3 or later and without ANY warranty, implied or otherwise.
 
+## 14.07.13, Tracy Holsclaw found bug in m1.j = ...
+
 ################################################################################
 if (exists("TESTING")) {
 source("LogitWrapper.R")
@@ -59,14 +61,14 @@ mlogit.R <- function(y, X, n=rep(1,nrow(as.matrix(y))),
       ## omega.j
       w[,j] = rpg.devroye(N, n, eta.j);
       
-     ## beta.j
+      ## beta.j
       PL.j = t(X) %*% (X * w[,j]);
       bL.j = t(X) %*% (kappa[,j] + c.j * w[,j]);
 
       P1.j = PL.j + P.0[,,j];
       ## Can speed up using Choleksy.
       V1.j = chol2inv(chol(P1.j));
-      m1.j = V1.j %*% (bL.j) + b.0[,j];
+      m1.j = V1.j %*% (bL.j + b.0[,j]);
       
       sqrtV1.j = t(chol(V1.j));
       beta[,j] = m1.j + sqrtV1.j %*% rnorm(P);

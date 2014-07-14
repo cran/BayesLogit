@@ -1,5 +1,5 @@
 d32239bcb673463ab874e80d47fae504 *COPYING
-f859838047826f519ece444639bca612 *DESCRIPTION
+d7f03749f38ce9198169d12b7c262095 *DESCRIPTION
 05ec9050787c6a1f727f6b682d56472d *NAMESPACE
 fb9bfdde40c2176dfe68e96f826457b4 *R/AR1.R
 f1ea968c8e39aece16fb2735b1c88b9f *R/ComputeMixture.R
@@ -10,7 +10,7 @@ ccc928bd2e3faa4d2248f82dbc73e5f4 *R/Indicators.R
 e993e9c45750fda1a08511dad959b093 *R/Logit-Indicators.R
 d05264a8415f8f02a1afcab40ea5228f *R/LogitPG.R
 61cf08802e39c584f234f63702de4647 *R/LogitWrapper.R
-63e471955ff29d3b4a4ffcdb97603b14 *R/MultLogitPG.R
+07658730ac47110813716d09e0df9f53 *R/MultLogitPG.R
 f5ef4cfb409809fb383ca0712a5102ce *R/Multinomial.R
 a34d3a3771bd27d990e78ad2b52bcf56 *R/PG.R
 84d2a7703106f691cc680c5b4a5efed7 *R/compmix.R
@@ -19,14 +19,14 @@ a2d2546a27de819aa45e052c654ce486 *R/logit-combine.R
 1344762c1bd5a32d62ed673fbe020d4e *data/rain.RData
 751a36c7b45080f4df807ea1b63f3b90 *data/spambase.RData
 a381c4c6ca98f200b91e717a96dd72d7 *inst/CITATION
-bf51f211755ce688a3fcb040cf819074 *inst/Dynamic/DESCRIPTION
+666d18bc3c008c94244a073ebbaeed9e *inst/Dynamic/DESCRIPTION
 1318a402522c8cd53af9c50168fd04ea *inst/Dynamic/Makevars
 219cadd26a6ed24c66dc71deee3fc7eb *inst/Dynamic/NAMESPACE
 1599fa1cb7309e9d34be86ef2f3fcc09 *inst/Dynamic/R/CUBS.R
 707e1123341a63a4fb6d42eb95289014 *inst/Dynamic/man/AR1.Rd
 e7eda761008363d1c0ea0c16dcfa0209 *inst/Dynamic/man/AR1Ind.Rd
 6c3bfbbaae7d0f48b4c51609a69ed175 *inst/Dynamic/man/CUBS.Rd
-aa2225c5f2ccafa77c68aa4a462c7b25 *inst/Static/DESCRIPTION
+607d270345482f131ec302cd7b793bd9 *inst/Static/DESCRIPTION
 3f0f2ca6c625329292ae14a92b342a08 *inst/Static/Makevars
 05ec9050787c6a1f727f6b682d56472d *inst/Static/NAMESPACE
 745579285a324a0cd5ad459fcc702c8b *inst/set.bash
@@ -62,7 +62,7 @@ c9f444ce1f3f88f0069ec2f63fea64be *src/Matrix.cpp
 09f08fdf4e4cf2b40c281153ca698646 *src/MatrixFrame.h
 47719b88123dafc774428f8f81eaf240 *src/MultLogit.h
 e5e605c72aa0206dea8e3e145396584b *src/Normal.h
-caba7f1779e953364f0a307ae8d65cab *src/PolyaGamma.cpp
+d620ea2ef214c0ed4376e83f4d276e12 *src/PolyaGamma.cpp
 22376aead37bdb78305191fe4265181c *src/PolyaGamma.h
 319bbc82edfa55f9e662d2d7c06b9da4 *src/PolyaGammaAlt.cpp
 fa1408787e96583a6c88f7d5e5ad60e6 *src/PolyaGammaAlt.h
