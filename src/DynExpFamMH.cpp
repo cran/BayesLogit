@@ -1,6 +1,12 @@
 #include "DynExpFamMH.h"
 #include <iostream>
 
+using std::pow;
+using std::fabs;
+using std::sqrt;
+using std::log;
+using std::exp;
+
 void bidc_to_midc(int* mstart, int* mnum, const int bstart, const int bnum, const int sob)
 {
   // Assume blocks are sob x sob.

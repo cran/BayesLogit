@@ -298,7 +298,8 @@ mult.check.parameters <- function(y, X, n, m.0, P.0, samp, burn)
     ok[3] = (nrow(y) == length(n) && nrow(y) == nrow(X));
     ok[4] = (samp > 0);
     ok[5] = (burn >=0);
-    ok[6] = all(rowSums(y) <= 1);
+    ## ok[6] = all(rowSums(y) <= 1);
+    ok[6] = all(rowSums(y) <= 1.00000000000001);
     ok[7] = (ncol(y)==ncol(m.0) && ncol(X)==nrow(m.0));
     ok[8] = (ncol(X)==dim(P.0)[1] && ncol(X)==dim(P.0)[2] && ncol(y)==dim(P.0)[3]);
 

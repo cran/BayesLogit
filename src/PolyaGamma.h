@@ -2,7 +2,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// Copyright 2012 Nick Polson, James Scott, and Jesse Windle.
+// Copyright 2014 Nick Polson, James Scott, and Jesse Windle.
 
 // This file is part of BayesLogit.
 

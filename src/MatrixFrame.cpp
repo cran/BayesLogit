@@ -62,6 +62,9 @@ void rposv(char uplo, int n, int nrhs, double* a, int lda, double* b, int ldb, i
 void rpotrf(char uplo, int n, double* a, int lda, int& info)
 { dpotrf_(&uplo, &n, a, &lda, &info); }
 
+void rgelsy(int m, int n, int nrhs, double* a, int lda, double* b, int ldb, int* jpvt, double rcond, int& rank, double* work, int lwork, int& info)
+{ dgelsy_(&m, &n, &nrhs, a, &lda, b, &ldb, jpvt, &rcond, &rank, work, &lwork, &info); }
+
 ////////////////////////////////////////////////////////////////////////////////
 // FLOAT
 

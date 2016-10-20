@@ -8,6 +8,12 @@
 #include "R.h"
 #endif
 
+using std::pow;
+using std::fabs;
+using std::sqrt;
+using std::log;
+using std::exp;
+
 void binom_transform (const double* rs, const double* fq, double* out)
 {
   double r=rs[0]; double s=rs[1];

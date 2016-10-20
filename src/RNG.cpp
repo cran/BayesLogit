@@ -1,11 +1,18 @@
 // -*- c-basic-offset: 4; -*-
 #include "RNG.h"
+#include <cmath>
 
 // #ifdef USE_R
 // #include "RRNG.cpp"
 // #else
 // #include "GRNG.cpp"
 // #endif
+
+using std::pow;
+using std::fabs;
+using std::sqrt;
+using std::log;
+using std::exp;
 
 // Throw runtime exception or return.
 #ifndef TREOR

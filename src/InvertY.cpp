@@ -1,9 +1,16 @@
 #include "InvertY.h"
 #include <stdio.h>
+#include <cmath>
 
 #ifdef USE_R
 #include "R.h"
 #endif
+
+using std::pow;
+using std::fabs;
+using std::sqrt;
+using std::log;
+using std::exp;
 
 //------------------------------------------------------------------------------
 

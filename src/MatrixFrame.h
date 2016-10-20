@@ -2,7 +2,7 @@
 
 //////////////////////////////////////////////////////////////////////
 
-// Copyright 2012 Jesse Windle - jwindle@ices.utexas.edu
+// Copyright 2012 Jesse Windle - jesse.windle@gmail.com
 
 // This program is free software: you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public License
@@ -328,6 +328,9 @@ int potrf(Frame<SCLR> a, char uplo);
 template<typename SCLR>
 int chol(Frame<SCLR> a, char uplo='L');
 
+template<typename SCLR>
+int gelsd(Frame<SCLR> A, Frame<SCLR> B);
+
 //--------------------------------------------------------------------
 
 // BLAS Level 1
@@ -346,7 +349,9 @@ int chol(Frame<SCLR> a, char uplo='L');
 									\
   void rgesv(int n, int nrhs, TYPE* a, int lda, int* ipiv, TYPE* b, int ldb, int& info); \
   void rposv(char uplo, int n, int nrhs, TYPE* a, int lda, TYPE* b, int ldb, int& info); \
-  void rpotrf(char uplo, int n, TYPE* a, int lda, int& info);
+  void rpotrf(char uplo, int n, TYPE* a, int lda, int& info); \
+  void rgelsy(int m, int n, int nrhs, TYPE* a, int lda, TYPE* b, int ldb, int* jpvt, double rcond, int& rank, TYPE* work, int lwork, int& info);
+
 
 BLASDEC(double)
 BLASDEC(float)
@@ -375,6 +380,7 @@ extern "C" {
   void dgesv_(int* N, int* NRHS, double* A, int* LDA, int* IPIV, double* B, int* LDB, int* INFO);
   void dposv_(char* UPLO, int* N, int* NRHS, double* A, int* LDA, double* B, int* LDB, int* INFO);
   void dpotrf_(char* UPLO, int* N, double* A, int* LDA, int* INFO);
+  void dgelsy_(int* M, int* N, int* NRHS, double* A, int* LDA, double* B, int* LDB, int* JPVT, double* RCOND, int* RANK, double* WORK, int* LBORK, int* INFO);
 
   // float
 
@@ -1093,6 +1099,58 @@ template<typename SCLR>
 int chol(Frame<SCLR> a, char uplo)
 {
   return potrf(a, uplo);
+}
+
+//------------------------------------------------------------------//
+// Minimum norm least squares
+template<typename SCLR>
+int gelsy(Frame<SCLR> a, Frame<SCLR> b)
+{
+  int m     = a.rows();
+  int n     = a.cols();
+  int lda   = m;
+  int ldb   = b.rows();
+  int nrhs  = b.cols();
+  int lwork = -1;
+  int info  = 0;
+
+  double rcond = 1e-10;
+
+  int rank;
+
+  vector<int>     jpvt(n, 0);
+  vector<double>  work(1);
+
+  // if (m >= n) {
+  //   // Over determined.
+  //   // nr_b >= m on input.
+  // } else {
+  //   // Under determined.
+  //   // nr_b >= n on input.
+  // }
+
+  rgelsy(m, n, nrhs, &a(0), lda, &b(0), ldb, &jpvt[0], rcond, rank, &work[0], lwork, info);
+
+  // if (info != 0) Rprintf( "Warning: gelsy query: info = %d\n", info);
+
+  lwork = (int) work[0];
+  work.resize(lwork);
+
+  // Rprintf( "Optimal work: %d\n", lwork);
+
+  rgelsy(m, n, nrhs, &a(0), lda, &b(0), ldb, &jpvt[0], rcond, rank, &work[0], lwork, info); 
+
+  // if (info != 0) Rprintf( "Warning: gelsy: info = %d\n", info);
+
+  if (info != 0) {
+    Rprintf( "problem in gelsy; info=%i.\n", info);
+    #ifndef NTHROW
+    throw std::runtime_error("gelsy failed\n");
+    #endif
+  }
+
+  return info;
+
 }
 
 //------------------------------------------------------------------//

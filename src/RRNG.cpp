@@ -1,4 +1,11 @@
 #include "RRNG.h"
+#include <cmath>
+
+using std::pow;
+using std::fabs;
+using std::sqrt;
+using std::log;
+using std::exp;
 
 //////////////////////////////////////////////////////////////////////
 		      // R Random Variates //

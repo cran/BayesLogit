@@ -2,6 +2,7 @@
 \name{logit.combine}
 
 \alias{logit.combine}
+\alias{mlogit.combine}
 
 \title{Collapse Data for Binomial Logistic Regression}
 

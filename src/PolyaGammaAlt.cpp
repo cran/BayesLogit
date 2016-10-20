@@ -1,6 +1,12 @@
 #include "PolyaGammaAlt.h"
 #include <stdexcept>
 
+using std::pow;
+using std::fabs;
+using std::sqrt;
+using std::log;
+using std::exp;
+
 //------------------------------------------------------------------------------
 
 double rtinvchi2(double h, double trunc, RNG& r)

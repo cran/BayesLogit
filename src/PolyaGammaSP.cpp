@@ -2,6 +2,12 @@
 #include "InvertY.h"
 #include <stdexcept>
 
+using std::pow;
+using std::fabs;
+using std::sqrt;
+using std::log;
+using std::exp;
+
 //------------------------------------------------------------------------------
 
 // double v_secant(double y, double vb, double va, double tol, int maxiter)

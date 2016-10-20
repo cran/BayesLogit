@@ -15,6 +15,12 @@
 
 using std::vector;
 
+using std::pow;
+using std::fabs;
+using std::sqrt;
+using std::log;
+using std::exp;
+
 void draw_indicators_logistic(int *r, double *z, double *lambda, int *n, 
 			      double *w, double *s, int *J)
 {

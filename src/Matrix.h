@@ -197,6 +197,9 @@ int svd2(Block<SCLR>& U, Block<SCLR>& S, Block<SCLR>& tV, Block<SCLR>& X);
 template<typename SCLR>
 int svd(Block<SCLR>& U, Block<SCLR>& S, Block<SCLR>& tV, Block<SCLR>& X, char jobz='A', bool pad_S=false);
 
+template<typename SCLR>
+int gelsy(Block<SCLR>& X, Block<SCLR>& y, Block<SCLR>& sol);
+
 //--------------------------------------------------------------------
 
 #define BLASDEC(SCLR)							\
@@ -1027,6 +1030,30 @@ int svd(Block<SCLR>& U, Block<SCLR>& S, Block<SCLR>& tV, Block<SCLR>& X, char jo
   }
 
   return info;
+}
+
+//------------------------------------------------------------------------------
+template<typename SCLR>
+int gelsy(Block<SCLR>& X, Block<SCLR>& y, Block<SCLR>& sol)
+{
+    bool underdetermined = X.cols() > y.rows();
+
+    int sol_row = underdetermined ? X.cols() : y.rows();
+    int sol_col = y.cols();
+
+    Block<SCLR> Xcopy(X);
+    Block<SCLR> ycopy(y);
+
+    int info = gelsy(Xcopy, ycopy);
+    sol.resize(sol_row, sol_col);
+
+    for (int j=0; j < sol_col; j++) {
+	for (int i=0; i < sol_row; i++) {
+	    sol(i,j) = ycopy(i,j);
+	}
+    }
+
+    return info;
 }
 
 //------------------------------------------------------------------------------
