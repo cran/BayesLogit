@@ -1,6 +1,6 @@
 d32239bcb673463ab874e80d47fae504 *COPYING
-32ecfd1d97ca2c7a28ca35e885698ea4 *DESCRIPTION
-eb25d01558f6d67e739af475ce6fb002 *NAMESPACE
+48a060cd2db6265b661c8821e94a84df *DESCRIPTION
+34780a1db2f6744c61de8d5fbae7e469 *NAMESPACE
 fb9bfdde40c2176dfe68e96f826457b4 *R/AR1.R
 f1ea968c8e39aece16fb2735b1c88b9f *R/ComputeMixture.R
 5e0373dd621950a3750e0f8916f1448d *R/DynExpFamMHWrapper.R
@@ -16,6 +16,7 @@ a34d3a3771bd27d990e78ad2b52bcf56 *R/PG.R
 84d2a7703106f691cc680c5b4a5efed7 *R/compmix.R
 717105110bffe84d8c1438abacce8bab *R/logit-EM.R
 a2d2546a27de819aa45e052c654ce486 *R/logit-combine.R
+6991c0729b646454e110501a2224231f *README.md
 1344762c1bd5a32d62ed673fbe020d4e *data/rain.RData
 751a36c7b45080f4df807ea1b63f3b90 *data/spambase.RData
 a381c4c6ca98f200b91e717a96dd72d7 *inst/CITATION
@@ -55,7 +56,7 @@ fe183123e99cde302791a9852412f3cb *src/CUBS_update.cpp
 2b6579abfa9a7d944d02e6d3b9747d9e *src/Logit.h
 20432040a215125061177a661a578b9c *src/LogitWrapper.cpp
 2182bf81d5b08b9bbf8dbcc41b3a7b16 *src/LogitWrapper.h
-cf00532eff3d8a9a2d08fdc5af23c035 *src/Makevars
+1faeaedaaa5ba8bf8ebd793b4900abdb *src/Makevars
 c9f444ce1f3f88f0069ec2f63fea64be *src/Matrix.cpp
 6b16f109fdaa35e20b80b89524c32456 *src/Matrix.h
 5b785daa06a36684b6a3750fcdadb0a1 *src/MatrixFrame.cpp
@@ -72,3 +73,4 @@ c00b7d7ac5008642a360e47bbc8deff5 *src/RNG.cpp
 12c7fa768c680ab9083d29b9341c694b *src/RNG.h
 3acc1b421be34450e3c9905a41ace786 *src/RRNG.cpp
 2e07e16238a8e7389dd3e8ea06e8085b *src/RRNG.h
+1c1102a823f57b2243eb3753bc148cd4 *src/init.c
