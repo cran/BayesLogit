@@ -1,31 +1,26 @@
-////////////////////////////////////////////////////////////////////////////////
-
-// Copyright 2014 Nick Polson, James Scott, and Jesse Windle.
+// -*- mode: c++; c-basic-offset: 4 -*-
+// (C) Nicholas Polson, James Scott, Jesse Windle, 2012-2019
 
 // This file is part of BayesLogit.
 
 // BayesLogit is free software: you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
-// Foundation, either version 3 of the License, or any later version.
+// Foundation, either version 3 of the License, or (at your option) any later
+// version.
 
 // BayesLogit is distributed in the hope that it will be useful, but WITHOUT ANY
 // WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
 // A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License along with
-// BayesLogit.  If not, see <http://www.gnu.org/licenses/>.
+// BayesLogit.  If not, see <https://www.gnu.org/licenses/>.
 
-////////////////////////////////////////////////////////////////////////////////
+
 
 #include "PolyaGamma.h"
 #include <stdexcept>
-#include <cmath>
 
 using std::pow;
-using std::fabs;
-using std::sqrt;
-using std::log;
-using std::exp;
 
 ////////////////////////////////////////////////////////////////////////////////
 			       // Constructors //
@@ -47,7 +42,11 @@ void PolyaGamma::set_trunc(int trunc)
   #ifndef NTHROW
     throw std::invalid_argument("PolyaGamma(int trunc): trunc < 1.");
   #else
-    Rprintf( "PolyaGamma(int trunc): trunc < 1.  Set trunc=1.\n");
+    #ifndef USE_R
+    fprintf(stderr, "Invalid parameter: PolyaGamma(int trunc): trunc < 1.  Setting trunc=1.\n");
+    #else
+    Rprintf("Invalid parameter: PolyaGamma(int trunc): trunc < 1.  Setting trunc=1.\n");
+    #endif
     trunc = 1;
   #endif
   }
@@ -82,7 +81,7 @@ double PolyaGamma::pigauss(double x, double Z)
 {
   double b = sqrt(1.0 / x) * (x * Z - 1);
   double a = sqrt(1.0 / x) * (x * Z + 1) * -1.0;
-  double y = RNG::p_norm(b) + exp(2 * Z) * RNG::p_norm(a);
+  double y = p_norm(b, false) + exp(2 * Z) * p_norm(a, false);
   return y;
 }
 
@@ -95,29 +94,29 @@ double PolyaGamma::mass_texpon(double Z)
   double a = sqrt(1.0 / t) * (t * Z + 1) * -1.0;
 
   double x0 = log(fz) + fz * t;
-  double xb = x0 - Z + RNG::p_norm(b, 1);
-  double xa = x0 + Z + RNG::p_norm(a, 1);
+  double xb = x0 - Z + p_norm(b, true);
+  double xa = x0 + Z + p_norm(a, true);
 
   double qdivp = 4 / __PI * ( exp(xb) + exp(xa) );
 
   return 1.0 / (1.0 + qdivp);
 }
 
-double PolyaGamma::rtigauss(double Z, RNG& r)
+double PolyaGamma::rtigauss(double Z)
 {
   Z = fabs(Z);
   double t = __TRUNC;
   double X = t + 1.0;
   if (__TRUNC_RECIP > Z) { // mu > t
     double alpha = 0.0;
-    while (r.unif() > alpha) {
+    while (unif() > alpha) {
       // X = t + 1.0;
       // while (X > t)
-      // 	X = 1.0 / r.gamma_rate(0.5, 0.5);
+      // 	X = 1.0 / gamma_rate(0.5, 0.5);
       // Slightly faster to use truncated normal.
-      double E1 = r.expon_rate(1.0); double E2 = r.expon_rate(1.0);
+      double E1 = expon_rate(1.0); double E2 = expon_rate(1.0);
       while ( E1*E1 > 2 * E2 / t) {
-	E1 = r.expon_rate(1.0); E2 = r.expon_rate(1.0);
+	E1 = expon_rate(1.0); E2 = expon_rate(1.0);
       }
       X = 1 + E1 * t;
       X = t / (X * X);
@@ -127,11 +126,11 @@ double PolyaGamma::rtigauss(double Z, RNG& r)
   else {
     double mu = 1.0 / Z;
     while (X > t) {
-      double Y = r.norm(1.0); Y *= Y;
+      double Y = norm(0., 1.); Y *= Y;
       double half_mu = 0.5 * mu;
       double mu_Y    = mu  * Y;
       X = mu + half_mu * mu_Y - half_mu * sqrt(4 * mu_Y + mu_Y * mu_Y);
-      if (r.unif() > mu / (mu + X))
+      if (unif() > mu / (mu + X))
 	X = mu*mu / X;
     }
   }
@@ -147,32 +146,36 @@ double PolyaGamma::rtigauss(double Z, RNG& r)
 //   return draw_sum_of_gammas(n, z, r);
 // }
 
-double PolyaGamma::draw(int n, double z, RNG& r)
+double PolyaGamma::draw(int n, double z)
 {
   if (n < 1) {
   #ifndef NTHROW
     throw std::invalid_argument("PolyaGamma::draw: n < 1.");
   #else
-    Rprintf( "PolyaGamma::draw: n < 1.  Set n = 1.\n");
+    #ifndef USE_R
+    fprintf(stderr, "PolyaGamma::draw: n < 1.  Set n = 1.\n");
+    #else
+    Rprintf("PolyaGamma::draw: n < 1.  Set n = 1.\n");
+    #endif
     n = 1;
   #endif
   }
   double sum = 0.0;
   for (int i = 0; i < n; ++i)
-    sum += draw_like_devroye(z, r);
+    sum += draw_like_devroye(z);
   return sum;
 } // draw
 
-double PolyaGamma::draw_sum_of_gammas(double n, double z, RNG& r)
+double PolyaGamma::draw_sum_of_gammas(double n, double z)
 {
   double x = 0;
   double kappa = z * z;
   for(int k=0; k < T; ++k)
-    x += r.gamma_scale(n, 1.0) / (bvec[k] + kappa);
+    x += gamma_scale(n, 1.0) / (bvec[k] + kappa);
   return 2.0 * x;
 } // draw_sum_of_gammas
 
-double PolyaGamma::draw_like_devroye(double Z, RNG& r)
+double PolyaGamma::draw_like_devroye(double Z)
 {
   // Change the parameter.
   Z = fabs(Z) * 0.5;
@@ -190,14 +193,14 @@ double PolyaGamma::draw_like_devroye(double Z, RNG& r)
 
   while (true) {
 
-    // if (r.unif() < p/(p+q))
-    if ( r.unif() < mass_texpon(Z) )
-      X = __TRUNC + r.expon_rate(1) / fz;
+    // if (unif() < p/(p+q))
+    if ( unif() < mass_texpon(Z) )
+      X = __TRUNC + expon_rate(1.) / fz;
     else
-      X = rtigauss(Z, r);
+      X = rtigauss(Z);
 
     S = a(0, X);
-    Y = r.unif() * S;
+    Y = unif() * S;
     int n = 0;
     bool go = true;
 

@@ -1,16 +1,28 @@
+// -*- mode: c++; c-basic-offset: 4 -*-
+// (C) Nicholas Polson, James Scott, Jesse Windle, 2012-2019
+
+// This file is part of BayesLogit.
+
+// BayesLogit is free software: you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free Software
+// Foundation, either version 3 of the License, or (at your option) any later
+// version.
+
+// BayesLogit is distributed in the hope that it will be useful, but WITHOUT ANY
+// WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+// A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License along with
+// BayesLogit.  If not, see <https://www.gnu.org/licenses/>.
+
+
+
 #include "InvertY.h"
 #include <stdio.h>
-#include <cmath>
 
 #ifdef USE_R
 #include "R.h"
 #endif
-
-using std::pow;
-using std::fabs;
-using std::sqrt;
-using std::log;
-using std::exp;
 
 //------------------------------------------------------------------------------
 
@@ -75,7 +87,7 @@ double v_eval(double y, double tol, int max_iter)
   else if (y==1) return 0.0;
     
   double id = (log(y) / log(2.0) + 4.0) / 0.1;
-  // Rprintf("y, id, y[id], v[id]: %g, %g, %g, %g\n", y, id, ygrid[(int)id], vgrid[(int)id]);
+  // printf("y, id, y[id], v[id]: %g, %g, %g, %g\n", y, id, ygrid[(int)id], vgrid[(int)id]);
 
   // C++ default is truncate decimal portion.
   int idlow  = (int)id;
@@ -97,10 +109,16 @@ double v_eval(double y, double tol, int max_iter)
     vnew = vnew > vh ? vh : vnew;
     vnew = vnew < vl ? vl : vnew;
     diff = fabs(vnew - vold);
-    // Rprintf("iter: %i, v: %g, diff: %g\n", iter, vnew, diff);
+    // printf("iter: %i, v: %g, diff: %g\n", iter, vnew, diff);
   }
 
-  if (iter >= max_iter) Rprintf( "InvertY.cpp, v_eval: reached max_iter: %i\n", iter);
+  if (iter >= max_iter) {
+    #ifndef USE_R
+    fprintf(stderr, "InvertY.cpp, v_eval: reached max_iter: %i\n", iter);
+    #else
+    Rprintf("InvertY.cpp, v_eval: reached max_iter: %i\n", iter);
+    #endif
+  }
 
   return vnew;
 }

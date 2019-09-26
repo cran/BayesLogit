@@ -1,16 +1,9 @@
-# PKG_CPPFLAGS = -I$(HOME)/RV-Project/Code/C_Examples/MyLib/ -I$(HOME)/Code/include/ -DUSE_R
-# PKG_CPPFLAGS = -I$(PWD) -D"USE_R"
-# PKG_LIBS = -L$(HOME)/Code/lib -lblas -llapack -lgsl
-# PKG_LIBS = -lblas -llapack
+# OBJECTS = PolyaGamma.o PolyaGammaApproxAlt.o PolyaGammaApproxSP.o InvertY.o
+# PKG_LIBS = $(BLAS_LIBS) $(FLIBS) $(LAPACK_LIBS)
 
-## W/OUT Dynamic Stuff
-OBJECTS = Matrix.o MatrixFrame.o RRNG.o RNG.o FSF_nmix.o LogitWrapper.o \
-	PolyaGamma.o PolyaGammaAlt.o PolyaGammaSP.o InvertY.o init.o
-PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
-# PKG_CPPFLAGS = -DUSE_R -DNDEBUG -DDISABLE_SINGLE -DNTHROW -Wall -pedantic -Wextra
-PKG_CPPFLAGS = -DUSE_R -DNDEBUG -DDISABLE_SINGLE -DNTHROW
+# For submitting
+PKG_CPPFLAGS = -DUSE_R -DNDEBUG -DNTHROW
 
-## With Dynamic Stuff
-## Link order matters.  I need -lblas for _cblas_caxpy.
-## PKG_LIBS = $(BLAS_LIBS) $(FLIBS) $(LAPACK_LIBS) -L$(HOME)/Code/lib -lgsl -lblas
-## PKG_CPPFLAGS = -DUSE_R -Wall -DNDEBUG -DDISABLE_SINGLE -I$(HOME)/Code/include
+# For debugging -- need to remove manually definition of NDEBUG
+# PKG_CPPFLAGS = -DUSE_R -DNTHROW
+

@@ -1,0 +1,7 @@
+
+- Review "Alt" PG sampler
+- Add ability to control gamma trunction in rpg
+- Clean up code
+- - Remove redundant code
+- - Unit tests
+- - Include rpg.sp.R
