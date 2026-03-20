@@ -1,6 +1,6 @@
 Package: BayesLogit
-Version: 2.1
-Date: 2019-09-25
+Version: 2.3
+Date: 2026-03-19
 Title: PolyaGamma Sampling
 Authors@R: c(
     person("Nicholas G.", "Polson", 
@@ -20,11 +20,11 @@ Depends: R (>= 3.6.0)
 BugReports: https://github.com/jwindle/BayesLogit/issues
 URL: https://github.com/jwindle/BayesLogit
 NeedsCompilation: yes
-Packaged: 2019-09-25 15:12:48 UTC; jwindle
+Packaged: 2026-03-19 22:38:42 UTC; jesse
 Author: Nicholas G. Polson [aut, cph],
   James G. Scott [aut, cph],
   Jesse Windle [aut, cre, cph],
   Jari Oksanen [ctb],
   James Balamuta [ctb]
 Repository: CRAN
-Date/Publication: 2019-09-26 08:30:21 UTC
+Date/Publication: 2026-03-20 06:11:53 UTC
